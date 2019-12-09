@@ -50,4 +50,44 @@ router.post('/', (req, res) => {
     }
 })
 
+router.put('/:id', (req, res) => {
+    const { id } = req.params;
+    const changes = req.body;
+    db('accounts')
+        .where({ id })
+        .update(changes)
+        .then(count => {
+            if (count > 0) {
+                return db('accounts')
+                    .where({ id })
+                    .first()
+                    .then(account => {
+                        res.status(200).json(account);
+                    })
+            } else {
+                res.status(404).json({ message: "The account with soecified ID doesn't exist" });
+            }
+        })
+        .catch(err => {
+            res.status(500).json({ error: "server error", err });
+    })
+})
+
+router.delete('/:id', (req, res) => {
+    const { id } = req.params;
+    db('accounts')
+        .where({ id })
+        .del()
+        .then(count => {
+            if (count > 0) {
+                res.status(200).json({ message: "Account deleted successfully" });
+            } else {
+                res.status(404).json({ message: "Account with the specified ID can't be found" });
+            }
+        })
+        .catch(err => {
+            res.status(500).json({ error: "server error", err });
+    })
+})
+
 module.exports = router;
